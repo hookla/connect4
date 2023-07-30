@@ -13,17 +13,22 @@ class TestConnect4(unittest.TestCase):
     def test_valid_move(self):
         game = Connect4()
         self.assertTrue(game.is_valid_move(0))
-        game.make_move(0, 1)
+        game.make_move(0)
         self.assertTrue(game.is_valid_move(0))
         for _ in range(5):
-            game.make_move(0, 1)
+            game.make_move(0)
         self.assertFalse(game.is_valid_move(0))
 
     def test_game_over(self):
         game = Connect4()
         self.assertFalse(game.game_over)
-        for _ in range(4):
-            game.make_move(0, 1)
+        game.make_move(0)
+        game.make_move(1)
+        game.make_move(0)
+        game.make_move(1)
+        game.make_move(0)
+        game.make_move(1)
+        game.make_move(0)
         self.assertTrue(game.game_over)
         self.assertEqual(game.winner, 1)
 
