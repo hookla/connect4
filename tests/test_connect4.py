@@ -42,8 +42,8 @@ class TestConnect4(unittest.TestCase):
             [1, 1, 2, 0, 1, 1, 0],
             [2, 2, 1, 1, 2, 1, 0],
         ]
-        self.assertTrue(game.is_winner(0, 1, 1))  # Vertical win for player 1
-        self.assertFalse(game.is_winner(0, 1, 2))  # No win for player 2
+        self.assertTrue(game.is_winner(1, 0, 1))  # Vertical win for player 1
+        self.assertFalse(game.is_winner(1, 0, 2))  # No win for player 2
 
 
 if __name__ == "__main__":

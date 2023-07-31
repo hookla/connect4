@@ -8,6 +8,8 @@ def create_board() -> List[List[int]]:
 
 class Connect4:
     DIRECTIONS = [(0, 1), (1, 0), (1, 1), (1, -1)]
+    BOARD_ROWS = 6
+    BOARD_COLUMNS = 7
 
     def __init__(self) -> None:
         self.board: List[List[int]] = create_board()
@@ -48,18 +50,15 @@ class Connect4:
             return True
         return False
 
-    def is_winner(
-        self, last_move_row: int, last_move_column: int, piece: int
-    ) -> bool:
-        # Check horizontal, vertical and diagonal directions
-        for row in range(6):
-            for column in range(7):
-                if self.board[row][column] == piece:
-                    for delta_row, delta_column in self.DIRECTIONS:
-                        if self.check_direction(
-                            row, column, delta_row, delta_column, piece
-                        ):
-                            return True
+    def is_winner(self, row: int, column: int, piece: int) -> bool:
+        for delta_row, delta_column in self.DIRECTIONS:
+            for offset in range(4):
+                new_row = row - delta_row * offset
+                new_column = column - delta_column * offset
+                if self.check_direction(
+                    new_row, new_column, delta_row, delta_column, piece
+                ):
+                    return True
         return False
 
     def check_direction(
@@ -70,11 +69,16 @@ class Connect4:
         delta_column: int,
         piece: int,
     ) -> bool:
-        # Check four positions in the given direction
-        for i in range(1, 4):
-            new_row, new_column = row + delta_row * i, column + delta_column * i
+        for offset in range(4):
+            new_row, new_column = (
+                row + delta_row * offset,
+                column + delta_column * offset,
+            )
             if (
-                not (0 <= new_row < 6 and 0 <= new_column < 7)
+                not (
+                    0 <= new_row < self.BOARD_ROWS
+                    and 0 <= new_column < self.BOARD_COLUMNS
+                )
                 or self.board[new_row][new_column] != piece
             ):
                 return False
