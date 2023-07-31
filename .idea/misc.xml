@@ -3,8 +3,7 @@
   <component name="Black">
     <option name="enabledOnReformat" value="true" />
     <option name="enabledOnSave" value="true" />
-    <option name="pathToExecutable" value="/Library/Frameworks/Python.framework/Versions/3.11/bin/black" />
-    <option name="sdkUUID" value="aa22460e-f804-482b-8b0a-4285d25e54e9" />
+    <option name="sdkUUID" value="2041589c-4e66-42b9-8385-a5a35e61762e" />
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (connect4)" project-jdk-type="Python SDK" />
+  <component name="ProjectRootManager" version="2" project-jdk-name="Poetry (connect4) (2)" project-jdk-type="Python SDK" />
 </project>
