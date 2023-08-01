@@ -16,6 +16,7 @@ flake8 = "^4.0"
 pylint = "^2.0"
 isort = "^5.0"
 setuptools = "^68.0"
+torch = "^2.0"
 
 [tool.poetry.dev-dependencies]
 

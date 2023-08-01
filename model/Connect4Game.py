@@ -23,6 +23,17 @@ class Connect4Game:
         in_bounds = 0 <= row < self.BOARD_ROWS and 0 <= column < self.BOARD_COLUMNS
         return in_bounds and self.board.get_position(position) == piece
 
+    def can_win_next_move(self, player):
+        # Check for each column if making a move there results in a win
+        for column in range(self.BOARD_COLUMNS):
+            for row in range(self.BOARD_ROWS - 1, -1, -1):
+                if self.board.get_position((row, column)) == 0:
+                    self.board.set_position((row, column), player)
+                    longest_sequence = self.is_sequence((row, column), player, 4)
+                    self.board.set_position((row, column), 0)  # Reset the position to its previous state
+                    if longest_sequence == 4:
+                        return True
+        return False
 
 
     def sequence_count_in_both_directions(
@@ -62,22 +73,26 @@ class Connect4Game:
                 return max_desired_sequence_length
         return max_sequence_count
 
-    def reward(self, longest_sequence: int, column: int) -> int:
+    def reward(self, longest_sequence: int, column: int, opponent_potential_win: bool) -> int:
         reward = 0
-        if longest_sequence == 4:
-            reward += 1000 + (self.MAX_MOVES - self.move_count) # Bonus for winning quickly
-        elif longest_sequence == 3 and self.game_over == False:
-            reward += 200
-        elif longest_sequence == 2 and self.game_over == False:
-            reward += 100
-
-        if column == 3 and self.game_over == False:
-            reward +=50
+        if self.game_over:
+            if self.winner == self.current_player:
+                reward += 5000 + (self.MAX_MOVES - self.move_count)  # Boosting winning reward, bonus for winning quickly
+            else:
+                reward -= 2000  # Increased penalty for losing
+        else:
+            if longest_sequence == 3:
+                reward += 500  # Increasing reward for a sequence of 3
+            elif longest_sequence == 2:
+                reward += 200  # Increasing reward for a sequence of 2
+            if column == 3:
+                reward += 100  # Increasing reward for playing in the center
+            if opponent_potential_win:
+                reward -= 1000  # Decrease penalty for not blocking opponent's potential win
         return reward
 
 
-
-    def make_move(self, column: int) -> Tuple[bool, int]:
+    def make_move(self, column: int) ->  int:
         longest_sequence = 0
         if self.board.is_valid_move(column):
             for row in range(self.BOARD_ROWS -1, -1, -1):
@@ -86,7 +101,7 @@ class Connect4Game:
                     break
             self.move_count += 1
 
-            longest_sequence = self.is_sequence( (row, column), self.current_player, 4 )
+            longest_sequence = self.is_sequence((row, column), self.current_player, 4)
             if longest_sequence == 4:
                 self.game_over = True
                 self.winner = self.current_player
@@ -96,7 +111,10 @@ class Connect4Game:
                 self.winner = None
 
             # Switch to the other player
-            self.current_player *= -1
-            return (True, self.reward(longest_sequence, column))
-        return (False, 0)
+            opponent = self.current_player * -1
+            opponent_potential_win = self.can_win_next_move(opponent)
+            reward = self.reward(longest_sequence, column, opponent_potential_win)
 
+            self.current_player = opponent
+            return reward
+        return 0
