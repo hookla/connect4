@@ -1,20 +1,20 @@
 import unittest
 
-from model.connect4 import Connect4
+from Connect4Game import Connect4Game
 
 
 class TestConnect4(unittest.TestCase):
     def setUp(self) -> None:
-        self.game = Connect4()
+        self.game = Connect4Game()
 
     def test_create_board(self) -> None:
-        game = Connect4()
+        game = Connect4Game()
         self.assertEqual(len(game.board), 6)
         self.assertEqual(len(game.board[0]), 7)
         self.assertEqual(sum(sum(row) for row in game.board), 0)
 
     def test_valid_move(self) -> None:
-        game = Connect4()
+        game = Connect4Game()
         self.assertTrue(game.is_valid_move(0))
         game.make_move(0)
         self.assertTrue(game.is_valid_move(0))
@@ -23,7 +23,7 @@ class TestConnect4(unittest.TestCase):
         self.assertFalse(game.is_valid_move(0))
 
     def test_game_over(self) -> None:
-        game = Connect4()
+        game = Connect4Game()
         self.assertFalse(game.game_over)
         game.make_move(0)
         game.make_move(1)
@@ -36,7 +36,7 @@ class TestConnect4(unittest.TestCase):
         self.assertEqual(game.winner, 1)
 
     def test_check_sequence(self) -> None:
-        game = Connect4()
+        game = Connect4Game()
         game.board = [
             [0, 0, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0, 0],

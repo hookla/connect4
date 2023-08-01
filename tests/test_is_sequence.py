@@ -1,10 +1,11 @@
 import unittest
 
-from model.connect4 import Connect4
+from Connect4Game import Connect4Game
+
 
 class TestConnect4(unittest.TestCase):
     def setUp(self) -> None:
-        self.game = Connect4()
+        self.game = Connect4Game()
 
     def test_check_sequence_vertical(self) -> None:
         self.game.board = [
@@ -15,7 +16,7 @@ class TestConnect4(unittest.TestCase):
             [1, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
         ]
-        self.assertTrue(self.game.is_sequence(4, 0, 1, 4))  # Vertical sequence for player 1
+        self.assertTrue(self.game.is_sequence((4, 0), 1, 4))  # Vertical sequence for player 1
 
     def test_check_sequence_horizontal(self) -> None:
         self.game.board = [
@@ -26,7 +27,7 @@ class TestConnect4(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0],
             [2, 2, 2, 1, 1, 1, 1],
         ]
-        self.assertTrue(self.game.is_sequence(5, 6, 1, 4))  # Horizontal sequence for player 1
+        self.assertTrue(self.game.is_sequence((5, 6), 1, 4))  # Horizontal sequence for player 1
 
     def test_check_sequence_diagonal(self) -> None:
         self.game.board = [
@@ -37,7 +38,7 @@ class TestConnect4(unittest.TestCase):
             [0, 0, 2, 1, 0, 0, 0],
             [2, 2, 1, 1, 0, 0, 0],
         ]
-        self.assertTrue(self.game.is_sequence(5, 2, 2, 3))  # Diagonal sequence for player 2
+        self.assertTrue(self.game.is_sequence((5,0), 2,  3))  # Diagonal sequence for player 2
 
     def test_check_sequence_broken(self) -> None:
         self.game.board = [
@@ -48,7 +49,7 @@ class TestConnect4(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0],
             [2, 1, 0, 1, 1, 0, 0],
         ]
-        self.assertFalse(self.game.is_sequence(5, 1, 1, 4))  # Broken sequence for player 1
+        self.assertFalse(self.game.is_sequence((5, 1),  1,4))  # Broken sequence for player 1
 
     def test_check_sequence_at_edge(self) -> None:
         self.game.board = [
@@ -59,7 +60,7 @@ class TestConnect4(unittest.TestCase):
             [1, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 0, 0, 0, 0],
         ]
-        self.assertTrue(self.game.is_sequence(5, 0, 1, 4))  # Sequence at edge for player 1
+        self.assertTrue(self.game.is_sequence((5, 0), 1, 4))  # Sequence at edge for player 1
 
     def test_check_sequence_out_of_board(self) -> None:
         self.game.board = [
@@ -70,7 +71,7 @@ class TestConnect4(unittest.TestCase):
             [0, 0, 0, 0, 0, 0, 0],
             [1, 1, 1, 0, 0, 0, 0],
         ]
-        self.assertFalse(self.game.is_sequence(5, 0, 1, 4))  # Out of board sequence for player 1
+        self.assertFalse(self.game.is_sequence((5, 0), 1, 4))  # Out of board sequence for player 1
 
 if __name__ == '__main__':
     unittest.main()
