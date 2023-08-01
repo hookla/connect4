@@ -8,9 +8,10 @@ class Connect4Game:
 
     BOARD_ROWS = 6
     BOARD_COLUMNS = 7
+    MAX_MOVES = BOARD_ROWS * BOARD_COLUMNS
     def __init__(self) -> None:
         self.board = Connect4Board(self.BOARD_ROWS, self.BOARD_COLUMNS )
-
+        self.draw: bool = False
         self.game_over: bool = False
         self.winner: Optional[int] = None
         self.current_player: int = 1
@@ -24,16 +25,16 @@ class Connect4Game:
 
 
 
-    def is_sequence_in_direction(
+    def sequence_count_in_both_directions(
             self,
             start_position: Tuple[int, int],
             direction: Tuple[int, int],
             piece: int,
-            sequence_length: int,
-    ) -> bool:
+            max_desired_sequence_length: int,
+    ) -> int:
         def sequence_count_in_direction(direction) -> int:
             count = 0
-            for offset in range(sequence_length):
+            for offset in range(max_desired_sequence_length):
                 new_position = (
                     start_position[0] + direction[0] * offset,
                     start_position[1] + direction[1] * offset,
@@ -46,34 +47,56 @@ class Connect4Game:
         # Count sequences in both the direction and its opposite
         sequence_count = sequence_count_in_direction(direction) + sequence_count_in_direction((-direction[0], -direction[1])) - 1
 
-        return sequence_count >= sequence_length
+        return sequence_count
 
 
-    def is_sequence(self, position: Tuple[int, int], piece: int, sequence_length: int) -> bool:
+    def is_sequence(self, position: Tuple[int, int], piece: int, max_desired_sequence_length: int) -> int:
+        max_sequence_count = 0
         for direction in self.DIRECTIONS:
-            if self.is_sequence_in_direction(
-                    position, direction, piece, sequence_length
-            ):
-                return True
-        return False
+            sequence_count = self.sequence_count_in_both_directions(
+                    position, direction, piece, max_desired_sequence_length
+            )
+            if sequence_count > max_sequence_count:
+                max_sequence_count = sequence_count
+            if max_sequence_count >= max_desired_sequence_length:
+                return max_desired_sequence_length
+        return max_sequence_count
+
+    def reward(self, longest_sequence: int, column: int) -> int:
+        reward = 0
+        if longest_sequence == 4:
+            reward += 1000 + (self.MAX_MOVES - self.move_count) # Bonus for winning quickly
+        elif longest_sequence == 3:
+            reward += 200
+        elif longest_sequence == 2:
+            reward += 100
+
+        if column == 3:
+            reward +=50
+        return reward
 
 
 
-    def make_move(self, column: int) -> bool:
+    def make_move(self, column: int) -> Tuple[bool, int]:
+        longest_sequence = 0
         if self.board.is_valid_move(column):
             for row in range(self.BOARD_ROWS -1, -1, -1):
                 if self.board.get_position((row, column)) == 0:
                     self.board.set_position((row, column), self.current_player)
                     break
             self.move_count += 1
-            if self.move_count >= 7 and self.is_sequence(
-                    (row, column), self.current_player, 4  # Check for a sequence of 4
-            ):
+
+            longest_sequence = self.is_sequence( (row, column), self.current_player, 4 )
+            if longest_sequence == 4:
                 self.game_over = True
                 self.winner = self.current_player
-            else:
-                # Switch to the other player
-                self.current_player *= -1
-            return True
-        return False
+            if self.move_count == self.MAX_MOVES:
+                self.game_over = True
+                self.draw = True
+                self.winner = None
+
+            # Switch to the other player
+            self.current_player *= -1
+            return (True, self.reward(longest_sequence, column))
+        return (False, 0)
 
