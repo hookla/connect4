@@ -66,12 +66,12 @@ class Connect4Game:
         reward = 0
         if longest_sequence == 4:
             reward += 1000 + (self.MAX_MOVES - self.move_count) # Bonus for winning quickly
-        elif longest_sequence == 3:
+        elif longest_sequence == 3 and self.game_over == False:
             reward += 200
-        elif longest_sequence == 2:
+        elif longest_sequence == 2 and self.game_over == False:
             reward += 100
 
-        if column == 3:
+        if column == 3 and self.game_over == False:
             reward +=50
         return reward
 
