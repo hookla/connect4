@@ -1,12 +1,13 @@
 import random
+import time
 from collections import deque
 
-import matplotlib.pyplot as plt
 import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
 
+import wandb
 from Connect4Game import Connect4Game
 
 
@@ -25,10 +26,10 @@ class DQN(nn.Module):
         return self.network(x)
 
 class RandomAgent:
-    def __init__(self, action_size):
-        self.action_size = action_size
+    def __init__(self):
+        pass
 
-    def act(self, state, game: Connect4Game):
+    def act(self,state, game):
         return random.choice(game.board.get_valid_moves())
 
 
@@ -59,9 +60,12 @@ class DQNAgent:
             valid_act_values = [act_values[i] for i in valid_moves]
             return valid_moves[np.argmax(valid_act_values)]
 
+
     def replay(self, batch_size):
         if len(self.memory) < batch_size:
             return
+        start_replay = time.time()
+
         minibatch = random.sample(self.memory, batch_size)
         for state, action, reward, next_state, done in minibatch:
             state = torch.tensor(np.array(state), dtype=torch.float32)
@@ -85,7 +89,8 @@ class DQNAgent:
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
-
+        end_replay = time.time()
+        #print(f"Replay took {end_replay - start_replay} seconds.")
 
 
 # Training loop
@@ -95,8 +100,14 @@ BATCH_SIZE = 32
 state_size = Connect4Game.BOARD_ROWS * Connect4Game.BOARD_COLUMNS  # Assuming your state is a 1D version of the board
 action_size = Connect4Game.BOARD_COLUMNS  # 7 possible actions, one for each column
 agent1 = DQNAgent(state_size, action_size)
-agent2 = RandomAgent(action_size)
+agent2 = RandomAgent()
 agents = [agent1, agent2]
+
+wandb.init(
+    # set the wandb project where this run will be logged
+    project="connect4",
+
+)
 
 # Load the model and optimizer
 #checkpoint = torch.load('xxx.weights')
@@ -104,27 +115,25 @@ agents = [agent1, agent2]
 #agent1.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
 #print('loaded checkpoint')
 
-
-
 # Initialize lists to store the rewards and running averages
 rewards1, rewards2, running_avg_rewards1, running_avg_rewards2 = [], [], [], []
 agent1_win_count = 0
 
 for e in range(EPISODES):
+    start_episode = time.time()
 
     game = Connect4Game()
     state = np.array(game.board.get_state())
     done = False
-    cumulative_reward1, cumulative_reward2 = 0, 0  # Reset cumulative rewards at the start of each episode
+    agent1_win = 0
+    this_game_reward = 0  # Reset cumulative rewards at the start of each episode
     while not done:
         for agent_number, agent in enumerate(agents, start=1):
             action = agent.act(state, game)
             reward = game.make_move(action)  # Assuming make_move now returns a reward
             # Accumulate rewards
             if agent_number == 1:
-                cumulative_reward1 += reward
-            else:
-                cumulative_reward2 += reward
+                this_game_reward += reward
             done = game.game_over
             next_state = np.array(game.board.board).reshape(-1)
             if agent_number == 1:
@@ -134,38 +143,22 @@ for e in range(EPISODES):
                 #game.board.print_board()
                 if game.winner == 1:
                     agent1_win_count +=1
+                    agent1_win = 1
 
-                cumulative_reward1 += reward
+                this_game_reward += reward
                 break
     # Save rewards and calculate running averages
-    rewards1.append(cumulative_reward1)
-    rewards2.append(cumulative_reward2)
-    running_avg_rewards1.append(np.mean(rewards1[max(0, e-100):e+1]))  # Calculate running average over last 100 episodes
-    running_avg_rewards2.append(np.mean(rewards2[max(0, e-100):e+1]))  # Calculate running average over last 100 episodes
+    wandb.log({"cumulative_reward1": this_game_reward, "agent1_win": agent1_win})
 
-    if e%100 == 0:
-        print(f"Episode {e}/{EPISODES}")
-        print(f"Average reward for Agent 1 in this episode: {cumulative_reward1}, Running average: {running_avg_rewards1[-1]}")
-        print(f"Average reward for Agent 2 in this episode: {cumulative_reward2}, Running average: {running_avg_rewards2[-1]}")
-        print(f"Agent 1 win count: {agent1_win_count}. average {agent1_win_count / 100 }")
-        game.board.print_board()
-        agent1_win_count = 0
     agent1.replay(BATCH_SIZE)  # Training the agent after each game
     #agent2.replay(BATCH_SIZE)  # Training the agent after each game
 
 
-
-
-
     if e%1000 == 0 and agent_number == 1:
         # Save the model and optimizer
-        print("saving model")
+        print(f"saving model episode {e}")
         torch.save({
             'model_state_dict': agent.model.state_dict(),
             'optimizer_state_dict': agent.optimizer.state_dict(),
         }, 'xxx.weights')
-        # Assuming rewards is a list of rewards obtained per episode
-        plt.plot(rewards1)
-        plt.ylabel('Reward per episode')
-        plt.xlabel('Episode')
-        plt.show()
+

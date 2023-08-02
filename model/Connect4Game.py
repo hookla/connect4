@@ -79,7 +79,7 @@ class Connect4Game:
             if self.winner == self.current_player:
                 reward += 5000 + (self.MAX_MOVES - self.move_count)  # Boosting winning reward, bonus for winning quickly
             else:
-                reward -= 2000  # Increased penalty for losing
+                reward -= 6000  # Increased penalty for losing
         else:
             if longest_sequence == 3:
                 reward += 500  # Increasing reward for a sequence of 3
@@ -88,9 +88,8 @@ class Connect4Game:
             if column == 3:
                 reward += 100  # Increasing reward for playing in the center
             if opponent_potential_win:
-                reward -= 1000  # Decrease penalty for not blocking opponent's potential win
+                reward -= 5000  # Decrease penalty for not blocking opponent's potential win
         return reward
-
 
     def make_move(self, column: int) ->  int:
         longest_sequence = 0
