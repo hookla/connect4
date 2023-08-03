@@ -82,11 +82,9 @@ class Connect4Game:
                 reward -= 6000  # Increased penalty for losing
         else:
             if longest_sequence == 3:
-                reward += 500  # Increasing reward for a sequence of 3
-            elif longest_sequence == 2:
-                reward += 200  # Increasing reward for a sequence of 2
+                reward += 300  # Increasing reward for a sequence of 3
             if column == 3:
-                reward += 100  # Increasing reward for playing in the center
+                reward += 250  # Increasing reward for playing in the center
             if opponent_potential_win:
                 reward -= 5000  # Decrease penalty for not blocking opponent's potential win
         return reward
