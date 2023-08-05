@@ -73,21 +73,22 @@ class Connect4Game:
                 return max_desired_sequence_length
         return max_sequence_count
 
-    def reward(self, longest_sequence: int, column: int, opponent_potential_win: bool) -> int:
-        reward = 0
+    def reward(self, longest_sequence: int, column: int, opponent_potential_win: bool) -> float:
+        reward = 0.0
         if self.game_over:
+            pass
             if self.winner == self.current_player:
-                reward += 5000 + (self.MAX_MOVES - self.move_count)  # Boosting winning reward, bonus for winning quickly
-            else:
-                reward -= 6000  # Increased penalty for losing
+                 reward += 1  # Win
+
         else:
             if longest_sequence == 3:
-                reward += 300  # Increasing reward for a sequence of 3
+                 reward += 0.3  # Encouraging sequence of 3
             if column == 3:
-                reward += 250  # Increasing reward for playing in the center
+                reward += 0.2  # Encouraging playing in the center
             if opponent_potential_win:
-                reward -= 5000  # Decrease penalty for not blocking opponent's potential win
+                reward -= 1  # Discouraging not blocking opponent's potential win
         return reward
+
 
     def make_move(self, column: int) ->  int:
         longest_sequence = 0

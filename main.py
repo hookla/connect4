@@ -10,7 +10,7 @@ action_size = Connect4Game.BOARD_COLUMNS  # 7 possible actions, one for each col
 def play_game() -> None:
     game = Connect4Game()
 
-    checkpoint = torch.load(f'xxx-10000.weights')
+    checkpoint = torch.load(f'model/xxx-70000.weights')
     agent = DQNAgent(state_size, action_size)
     agent.model.load_state_dict(checkpoint['model_state_dict'])
     agent.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
@@ -29,8 +29,8 @@ def play_game() -> None:
             print("Player 2's turn.")
             state = np.array(game.board.get_state())  # Get the current state
             move = agent.act(state, game)  # Let the agent choose a move
-
-        game.make_move(move)
+        reward = game.make_move(move)
+        print({f"played column {move}.  reward {reward}"})
 
     game.board.print_board()
 

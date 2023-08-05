@@ -1,5 +1,3 @@
-import time
-
 import numpy as np
 import torch
 import wandb
@@ -16,7 +14,14 @@ state_size = Connect4Game.BOARD_ROWS * Connect4Game.BOARD_COLUMNS  # Assuming yo
 action_size = Connect4Game.BOARD_COLUMNS  # 7 possible actions, one for each column
 agent1 = DQNAgent(state_size, action_size)
 agent2 = RandomAgent()
-agents = [agent1, agent2]
+
+checkpoint = torch.load(f'xxx-{100000}.weights')
+agent3 = DQNAgent(state_size, action_size)
+agent3.model.load_state_dict(checkpoint['model_state_dict'])
+agent3.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+print(f'loaded episode {100000} checkpoint into agent3')
+
+agents = [agent1, agent3]
 
 wandb.init(
     # set the wandb project where this run will be logged
@@ -26,17 +31,15 @@ wandb.init(
 
 
 for e in range(EPISODES):
-    if e > 1 and e%500 == 1:
-        checkpoint = torch.load(f'xxx-{e-1}.weights')
+    if e > 1 and e%100000 == 1:
+        checkpoint = torch.load(f'xxx-{100000}.weights')
         agent2 = DQNAgent(state_size, action_size)
         agent2.model.load_state_dict(checkpoint['model_state_dict'])
         agent2.optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
         print(f'loaded episode {e-1} checkpoint into agent2')
-    start_episode = time.time()
 
     game = Connect4Game()
     state = np.array(game.board.get_state())
-    done = False
     agent1_win = 0
     this_game_reward = 0  # Reset cumulative rewards at the start of each episode
     while not game.game_over:
@@ -48,26 +51,26 @@ for e in range(EPISODES):
             # Accumulate rewards
             if agent_number == 1:
                 this_game_reward += reward
-                agent.remember(state, action, reward, next_state, done)
+                agent.remember(state, action, reward, next_state, game.game_over)
 
             if game.game_over:
                 if game.winner == 1:
                     agent1_win = 1
                 if agent_number == 2:
-                    agent1.remember(state, action, -reward, next_state, done)
+                    agent1.remember(state, action, -reward, next_state, game.game_over)
                 break
             state = next_state
 
     # Save rewards and calculate running averages
 
     average_loss = agent1.replay(BATCH_SIZE)  # Training the agent after each game
-    wandb.log({"this_game_reward": this_game_reward, "agent1_win": agent1_win, "average_loss": average_loss})
+    wandb.log({"this_game_reward": this_game_reward, "agent1_win": agent1_win, "average_loss": average_loss, "agent1.epsilon": agent1.epsilon})
 
     if e%100 == 0:
         game.board.print_board()
-        print(f"episode {e}, winner {game.winner}")
+        print(f"episode {e}, winner {game.winner}, loss {average_loss}, reward {this_game_reward}, agent1.epsilon {agent1.epsilon}")
 
-    if e%500 == 0:
+    if e%5000 == 0:
         # Save the model and optimizer
         print(f"saving model episode {e}")
         torch.save({
