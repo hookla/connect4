@@ -81,12 +81,33 @@ class Connect4Game:
                  reward += 1  # Win
 
         else:
-            if longest_sequence == 3:
-                 reward += 0.3  # Encouraging sequence of 3
-            if column == 3:
-                reward += 0.2  # Encouraging playing in the center
             if opponent_potential_win:
                 reward -= 1  # Discouraging not blocking opponent's potential win
+            elif longest_sequence == 3:
+                 reward += 0.3  # Encouraging sequence of 3
+            elif column == 3:
+                reward += 0.2  # Encouraging playing in the center
+        return reward
+
+    def reward2(self, position: Tuple[int, int], column: int) -> float:
+        reward = 0.0
+
+        if self.game_over:
+            if self.winner == self.current_player:
+                reward += 1  # Win
+        else:
+            # Calculate opponent_potential_win first.
+            opponent_potential_win = self.can_win_next_move(self.current_player * -1)
+            if opponent_potential_win:
+                reward -= 1  # Discouraging not blocking opponent's potential win
+            elif column == 3:
+                reward += 0.2  # Encouraging playing in the center
+            else:
+                # Calculate created_potential_win only if the previous conditions aren't met.
+                created_potential_win = self.can_win_next_move(self.current_player)
+                if created_potential_win:
+                    reward += 0.3  # Encouraging creating a winning opportunity
+
         return reward
 
 

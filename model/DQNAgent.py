@@ -23,6 +23,10 @@ class DQNAgent:
         self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
         self.criterion = nn.MSELoss()
 
+    def to_device(self, device):
+        """Move the model to the specified device"""
+        self.model = self.model.to(device)
+
     def remember(self, state, action, reward, next_state, done):
         self.memory.append((state, action, reward, next_state, done))
 
@@ -66,7 +70,7 @@ class DQNAgent:
             self.optimizer.step()
             total_loss += loss.item()  # Add the loss of this sample to the total_loss
 
-        #average_loss = total_loss / batch_size  # Calculate the average loss
+        average_loss = total_loss / batch_size  # Calculate the average loss
 
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
