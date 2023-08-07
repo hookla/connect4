@@ -1,6 +1,7 @@
 from typing import List, Tuple
 
 import colorama
+import torch
 
 colorama.init(autoreset=True)
 
@@ -64,6 +65,6 @@ class Connect4Board:
     def get_valid_moves(self) -> List[int]:
         return [c for c in range(7) if self.is_valid_move(c)]
 
-    def get_state(self) -> List[int]:
-        # Flatten the board into a 1D list and return it
-        return [cell for row in self.board for cell in row]
+    def get_state(self) -> torch.Tensor:
+        return torch.tensor(self.board, dtype=torch.float).reshape(-1)
+

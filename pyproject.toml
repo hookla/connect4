@@ -17,8 +17,7 @@ pylint = "^2.0"
 isort = "^5.0"
 setuptools = "^68.0"
 wandb = "^0"
-torch = "1.4"
-torchvision = "^0"
+torch = "^2.0"
 colorama = "^0"
 
 [tool.poetry.dev-dependencies]

@@ -1,7 +1,7 @@
 import random
 from collections import deque
+from typing import Tuple, List
 
-import numpy as np
 import torch
 import torch.nn as nn
 import torch.optim as optim
@@ -10,71 +10,66 @@ from DQN import DQN
 
 
 class DQNAgent:
-    def __init__(self, state_size, action_size):
+    def __init__(self, state_size: int, action_size: int, device: torch.device):
         self.state_size = state_size
         self.action_size = action_size
-        self.memory = deque(maxlen=2000)
-        self.gamma = 0.95
-        self.epsilon = 1.0
-        self.epsilon_min = 0.1
-        self.epsilon_decay = 0.99999
-        self.learning_rate = 0.001
-        self.model = DQN(self.state_size, self.action_size)
-        self.optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
-        self.criterion = nn.MSELoss()
+        self.device = device
+        self.memory = deque(maxlen=20000)
+        self.gamma: float = 0.95
+        self.epsilon: float = 1.0
+        self.epsilon_min: float = 0.1
+        self.epsilon_decay: float = 0.99999
+        self.learning_rate: float = 0.001
+        self.model: nn.Module = DQN(self.state_size, self.action_size)
+        self.model.to(self.device)
+        self.optimizer: optim.Optimizer = optim.Adam(self.model.parameters(), lr=self.learning_rate)
+        self.criterion: nn.Module = nn.MSELoss()
 
-    def to_device(self, device):
-        """Move the model to the specified device"""
-        self.model = self.model.to(device)
 
-    def remember(self, state, action, reward, next_state, done):
+    def remember(self, state: torch.Tensor, action: int, reward: torch.Tensor, next_state: torch.Tensor, done: bool):
         self.memory.append((state, action, reward, next_state, done))
 
-    def act(self, state, game):
-        if np.random.rand() <= self.epsilon:
-            return np.random.choice(game.board.get_valid_moves())
+    def act(self, state: torch.Tensor, game) -> int:
+        if torch.rand(1).item() <= self.epsilon:
+            valid_moves = torch.tensor(game.board.get_valid_moves())
+            return valid_moves[torch.randint(0, len(valid_moves), (1,))].item()
         else:
-            state_tensor = torch.tensor(np.array([state]), dtype=torch.float32)
-            act_values = self.model(state_tensor).detach().numpy().flatten()
+            state_tensor = state.to(self.device).unsqueeze(0)  # Adds a batch dimension
+            act_values = self.model(state_tensor).squeeze().detach()  # Removes batch dimension
             valid_moves = game.board.get_valid_moves()
-            valid_act_values = [act_values[i] for i in valid_moves]
-            #print(valid_act_values)
-            return valid_moves[np.argmax(valid_act_values)]
+            valid_act_values = act_values[valid_moves]
+            return valid_moves[torch.argmax(valid_act_values).item()]
 
-
-    def replay(self, batch_size):
+    def replay(self, batch_size: int) -> float:
         if len(self.memory) < batch_size:
-            return
-        #start_replay = time.time()
+            return 0
+        minibatch: List[Tuple[torch.Tensor, int, torch.Tensor, torch.Tensor, bool]] = random.sample(self.memory, batch_size)
 
-        minibatch = random.sample(self.memory, batch_size)
-        total_loss = 0  # Initialize the total_loss to 0
-        #average_loss = 0
-        for state, action, reward, next_state, done in minibatch:
-            state = torch.tensor(np.array(state), dtype=torch.float32)
-            next_state = torch.tensor(np.array(next_state), dtype=torch.float32)
-            reward = torch.tensor(np.array(reward), dtype=torch.float32)
-            if not done:
-                target = reward + self.gamma * torch.max(self.model(next_state)).item()
-            else:
-                target = reward
+        # 1. Extract batches
+        states, actions, rewards, next_states, dones = zip(*minibatch)
+        states = torch.stack(states).to(self.device)
+        actions = torch.tensor(actions, dtype=torch.long).to(self.device)  # Long tensor for indexing
+        rewards = torch.tensor(rewards, dtype=torch.float).to(self.device)
+        next_states = torch.stack(next_states).to(self.device)
+        dones = torch.tensor(dones, dtype=torch.float).to(self.device)
 
-            current_q_values = self.model(state)
-            target_q_values = current_q_values.view(1, -1)  # reshape target_f
-            target = target.detach().view(1, -1)  # reshape target
-            target_q_values[0][action] = target[0]
-            self.optimizer.zero_grad()
-            loss = self.criterion(target_q_values, self.model(state).view(1, -1))
-            loss.backward()
-            torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
-            self.optimizer.step()
-            total_loss += loss.item()  # Add the loss of this sample to the total_loss
+        # 2. Compute Q-values and target Q-values
+        current_q_values = self.model(states).gather(1, actions.unsqueeze(-1)).squeeze(-1)
+        next_q_values = self.model(next_states).max(1)[0]
+        targets = rewards + (1 - dones) * self.gamma * next_q_values
 
-        average_loss = total_loss / batch_size  # Calculate the average loss
+        # 3. Compute the loss and backpropagate
+        self.optimizer.zero_grad()
+        loss = self.criterion(current_q_values, targets.detach())
+        loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=1.0)
+        self.optimizer.step()
 
+        # Decay epsilon
         if self.epsilon > self.epsilon_min:
             self.epsilon *= self.epsilon_decay
 
+        average_loss = loss.item() / batch_size
         return average_loss
 
 

@@ -83,8 +83,6 @@ class Connect4Game:
         else:
             if opponent_potential_win:
                 reward -= 1  # Discouraging not blocking opponent's potential win
-            elif longest_sequence == 3:
-                 reward += 0.3  # Encouraging sequence of 3
             elif column == 3:
                 reward += 0.2  # Encouraging playing in the center
         return reward
@@ -111,7 +109,7 @@ class Connect4Game:
         return reward
 
 
-    def make_move(self, column: int) ->  int:
+    def make_move(self, column: int) ->  float:
         longest_sequence = 0
         if self.board.is_valid_move(column):
             for row in range(self.BOARD_ROWS -1, -1, -1):
