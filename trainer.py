@@ -59,7 +59,7 @@ def play_game(e):
         print(generate_markdown_table(actions))
         print(f"episode {e}, winner {game.winner}, loss {average_loss}, reward {game_reward}, agent1.epsilon {agent1.epsilon}")
 
-    if e%50000 == 0 and 1==0:
+    if e%50000 == 0 and e > 1:
         # Save the model and optimizer
         print(f"saving model episode {e}")
         torch.save({

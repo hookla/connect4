@@ -10,7 +10,7 @@ def test_vertical_win() -> None:
         [1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ])
-    assert game.is_sequence((4,0), 1, 4) == 4
+    assert game.has_sequence_of_length((4, 0), 1, 4) == 4
 
 
 def test_horizontal_win() -> None:
@@ -23,7 +23,7 @@ def test_horizontal_win() -> None:
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ])
-    assert game.is_sequence((3,0), 1, 4) == 4
+    assert game.has_sequence_of_length((3, 0), 1, 4) == 4
 
 def test_horizontal_fill_middle_win() -> None:
     game = Connect4Game()
@@ -35,7 +35,7 @@ def test_horizontal_fill_middle_win() -> None:
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ])
-    assert game.is_sequence((3,1), 1, 4) == 4
+    assert game.has_sequence_of_length((3, 1), 1, 4) == 4
 
 
 def test_diagonal_win() -> None:
@@ -48,7 +48,7 @@ def test_diagonal_win() -> None:
         [0, 0, 0, 1, 0, 0, 0],
         [0, 0, 0, 0, 1, 0, 0],
     ])
-    assert game.is_sequence((5,4), 1, 4) == 4
+    assert game.has_sequence_of_length((5, 4), 1, 4) == 4
 
 
 def test_diagonal_win_other_direction() -> None:
@@ -61,7 +61,7 @@ def test_diagonal_win_other_direction() -> None:
         [1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ])
-    assert game.is_sequence((4,0), 1, 4) == 4
+    assert game.has_sequence_of_length((4, 0), 1, 4) == 4
 
 
 def test_seq_3_does_not_pass() -> None:
@@ -74,4 +74,4 @@ def test_seq_3_does_not_pass() -> None:
         [1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ])
-    assert not game.is_sequence((4,0), 1, 4) == 4
+    assert not game.has_sequence_of_length((4, 0), 1, 4) == 4

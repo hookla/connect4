@@ -18,10 +18,6 @@ class Connect4Game:
         self.move_count: int = 0
 
 
-    def is_valid_position(self, position: Tuple[int, int], piece: int) -> bool:
-        row, column = position
-        in_bounds = 0 <= row < self.BOARD_ROWS and 0 <= column < self.BOARD_COLUMNS
-        return in_bounds and self.board.get_position(position) == piece
 
     def can_win_next_move(self, player):
         # Check for each column if making a move there results in a win
@@ -29,7 +25,7 @@ class Connect4Game:
             for row in range(self.BOARD_ROWS - 1, -1, -1):
                 if self.board.get_position((row, column)) == 0:
                     self.board.set_position((row, column), player)
-                    longest_sequence = self.is_sequence((row, column), player, 4)
+                    longest_sequence = self.has_sequence_of_length((row, column), player, 4)
                     self.board.set_position((row, column), 0)  # Reset the position to its previous state
                     if longest_sequence == 4:
                         return True
@@ -50,7 +46,7 @@ class Connect4Game:
                     start_position[0] + direction[0] * offset,
                     start_position[1] + direction[1] * offset,
                 )
-                if not self.is_valid_position(new_position, piece):
+                if not self.board.is_valid_position(new_position) or self.board.get_position(new_position) != piece:
                     break
                 count += 1
             return count
@@ -61,7 +57,7 @@ class Connect4Game:
         return sequence_count
 
 
-    def is_sequence(self, position: Tuple[int, int], piece: int, max_desired_sequence_length: int) -> int:
+    def has_sequence_of_length(self, position: Tuple[int, int], piece: int, max_desired_sequence_length: int) -> int:
         max_sequence_count = 0
         for direction in self.DIRECTIONS:
             sequence_count = self.sequence_count_in_both_directions(
@@ -72,6 +68,34 @@ class Connect4Game:
             if max_sequence_count >= max_desired_sequence_length:
                 return max_desired_sequence_length
         return max_sequence_count
+
+
+
+    def make_move(self, column: int) ->  float:
+        longest_sequence = 0
+        row = self.board.make_move(column, self.current_player)
+        self.move_count += 1
+
+
+        if self.move_count == self.MAX_MOVES:
+            self.game_over = True
+            self.draw = True
+            self.winner = None
+        else:
+            longest_sequence = self.has_sequence_of_length((row, column), self.current_player, 4)
+            if longest_sequence == 4:
+                self.game_over = True
+                self.winner = self.current_player
+
+        # Switch to the other player
+        opponent = self.current_player * -1
+        opponent_potential_win = self.can_win_next_move(opponent)
+        reward = self.reward(longest_sequence, column, opponent_potential_win)
+
+        self.current_player = opponent
+        return reward
+
+
 
     def reward(self, longest_sequence: int, column: int, opponent_potential_win: bool) -> float:
         reward = 0.0
@@ -107,31 +131,3 @@ class Connect4Game:
                     reward += 0.3  # Encouraging creating a winning opportunity
 
         return reward
-
-
-    def make_move(self, column: int) ->  float:
-        longest_sequence = 0
-        if self.board.is_valid_move(column):
-            for row in range(self.BOARD_ROWS -1, -1, -1):
-                if self.board.get_position((row, column)) == 0:
-                    self.board.set_position((row, column), self.current_player)
-                    break
-            self.move_count += 1
-
-            longest_sequence = self.is_sequence((row, column), self.current_player, 4)
-            if longest_sequence == 4:
-                self.game_over = True
-                self.winner = self.current_player
-            if self.move_count == self.MAX_MOVES:
-                self.game_over = True
-                self.draw = True
-                self.winner = None
-
-            # Switch to the other player
-            opponent = self.current_player * -1
-            opponent_potential_win = self.can_win_next_move(opponent)
-            reward = self.reward(longest_sequence, column, opponent_potential_win)
-
-            self.current_player = opponent
-            return reward
-        return 0

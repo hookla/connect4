@@ -45,11 +45,11 @@ class TestConnect4(unittest.TestCase):
             [1, 1, 2, 0, 1, 1, 0],
             [2, 2, 1, 1, 2, 1, 0],
         ]
-        self.assertTrue(game.is_sequence(1, 0, 1, 4))  # Vertical sequence of 4 for player 1
-        self.assertTrue(game.is_sequence(3, 5, 1, 3))  # Horizontal sequence of 3 for player 1
-        self.assertTrue(game.is_sequence(3, 4, 2, 4))  # No vertical sequence of 4 for player 2
-        self.assertTrue(game.is_sequence(3, 4, 2, 3))  # No horizontal sequence of 3 for player 2
-        self.assertTrue(game.is_sequence(3, 4, 2, 2))  # Horizontal sequence of 2 for player 2
+        self.assertTrue(game.has_sequence_of_length(1, 0, 1, 4))  # Vertical sequence of 4 for player 1
+        self.assertTrue(game.has_sequence_of_length(3, 5, 1, 3))  # Horizontal sequence of 3 for player 1
+        self.assertTrue(game.has_sequence_of_length(3, 4, 2, 4))  # No vertical sequence of 4 for player 2
+        self.assertTrue(game.has_sequence_of_length(3, 4, 2, 3))  # No horizontal sequence of 3 for player 2
+        self.assertTrue(game.has_sequence_of_length(3, 4, 2, 2))  # Horizontal sequence of 2 for player 2
 
 def test_check_sequence_vertical(self) -> None:
     self.game.board = [
@@ -60,7 +60,7 @@ def test_check_sequence_vertical(self) -> None:
         [1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
     ]
-    self.assertTrue(self.game.is_sequence(4, 0, 1, 4))  # Vertical sequence for player 1
+    self.assertTrue(self.game.has_sequence_of_length(4, 0, 1, 4))  # Vertical sequence for player 1
 
 
 if __name__ == "__main__":

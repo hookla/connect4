@@ -5,6 +5,11 @@ import torch
 
 colorama.init(autoreset=True)
 
+EMPTY_CELL = 0
+
+class InvalidMoveError(Exception):
+    pass
+
 class Connect4Board:
 
 
@@ -12,7 +17,25 @@ class Connect4Board:
         self.board: List[List[int]] = [[0 for _ in range(board_columns)] for _ in range(board_rows)]
         self.board_rows = board_rows
         self.board_columns = board_columns
+        self.first_empty_row_per_column = [self.board_rows - 1 for _ in range(self.board_columns)]
 
+    def is_valid_position(self, position: Tuple[int, int]) -> bool:
+        return 0 <= position[0] < self.board_rows and 0 <= position[1] < self.board_columns
+
+    def is_valid_move(self, column: int) -> bool:
+        if self.first_empty_row_per_column[column] >= 0:
+            return True
+        else:
+            return False
+
+    def make_move(self, column: int, piece: int) -> int:
+        if not self.is_valid_move(column):
+            raise InvalidMoveError(f"column {column} is not a valid move.")
+
+        row = self.first_empty_row_per_column[column]
+        self.board[row][column] = piece
+        self.first_empty_row_per_column[column] -= 1
+        return row
 
     def set_board_state(self, state: List[List[int]]) -> None:
         if len(state) != self.board_rows or any(len(row) != self.board_columns for row in state):
@@ -59,8 +82,9 @@ class Connect4Board:
 
 
     def is_valid_move(self, column: int) -> bool:
-        # A move is valid if the top row of a column is not occupied
-        return self.board[0][column] == 0
+        if 0 <= column < self.board_columns:
+            return self.board[0][column] == EMPTY_CELL
+        return False
 
     def get_valid_moves(self) -> List[int]:
         return [c for c in range(7) if self.is_valid_move(c)]
