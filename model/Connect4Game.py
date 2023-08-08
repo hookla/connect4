@@ -35,7 +35,7 @@ class Connect4Game:
                                           piece: int, max_desired_sequence_length: int) -> int:
         def sequence_count_in_direction(direction: Tuple[int, int]) -> int:
             if direction == (-1, 0):
-                return
+                return 0
 
             count = 0
             for offset in range(1, max_desired_sequence_length):  # Updated range
