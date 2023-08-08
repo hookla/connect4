@@ -5,22 +5,24 @@ import torch
 
 colorama.init(autoreset=True)
 
-EMPTY_CELL = 0
+
 
 class InvalidMoveError(Exception):
     pass
 
 class Connect4Board:
 
+    BOARD_ROWS = 6
+    BOARD_COLUMNS = 7
+    MAX_MOVES = BOARD_ROWS * BOARD_COLUMNS
+    EMPTY_CELL = 0
 
-    def __init__(self, board_rows: int, board_columns: int) -> None:
-        self.board: List[List[int]] = [[0 for _ in range(board_columns)] for _ in range(board_rows)]
-        self.board_rows = board_rows
-        self.board_columns = board_columns
-        self.first_empty_row_per_column = [self.board_rows - 1 for _ in range(self.board_columns)]
+    def __init__(self) -> None:
+        self.board: List[List[int]] = [[0 for _ in range(self.BOARD_COLUMNS)] for _ in range(self.BOARD_ROWS)]
+        self.first_empty_row_per_column = [self.BOARD_ROWS - 1 for _ in range(self.BOARD_COLUMNS)]
 
     def is_valid_position(self, position: Tuple[int, int]) -> bool:
-        return 0 <= position[0] < self.board_rows and 0 <= position[1] < self.board_columns
+        return 0 <= position[0] < self.BOARD_ROWS and 0 <= position[1] < self.BOARD_COLUMNS
 
     def is_valid_move(self, column: int) -> bool:
         if self.first_empty_row_per_column[column] >= 0:
@@ -38,8 +40,8 @@ class Connect4Board:
         return row
 
     def set_board_state(self, state: List[List[int]]) -> None:
-        if len(state) != self.board_rows or any(len(row) != self.board_columns for row in state):
-            raise ValueError(f'Invalid state, expected a list with {self.board_rows} rows and {self.board_columns} columns')
+        if len(state) != self.BOARD_ROWS or any(len(row) != self.BOARD_COLUMNS for row in state):
+            raise ValueError(f'Invalid state, expected a list with {self.BOARD_ROWS} rows and {self.BOARD_COLUMNS} columns')
         self.board = [list(row) for row in state]
 
 
@@ -79,12 +81,6 @@ class Connect4Board:
         board_representation += column_numbers
 
         print(board_representation)
-
-
-    def is_valid_move(self, column: int) -> bool:
-        if 0 <= column < self.board_columns:
-            return self.board[0][column] == EMPTY_CELL
-        return False
 
     def get_valid_moves(self) -> List[int]:
         return [c for c in range(7) if self.is_valid_move(c)]

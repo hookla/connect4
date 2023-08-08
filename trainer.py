@@ -2,6 +2,7 @@ import torch
 from colorama import Fore, Style
 
 import wandb
+from Connect4Board import Connect4Board
 from Connect4Game import Connect4Game
 from DQNAgent import DQNAgent
 
@@ -54,7 +55,7 @@ def play_game(e):
 
     wandb.log({"game_reward": game_reward, "agent1_win_count": agent1_win_count, "average_loss": average_loss, "agent1.epsilon": agent1.epsilon})
 
-    if e%1000 == 0:
+    if e%100 == 0:
         game.board.print_board()
         print(generate_markdown_table(actions))
         print(f"episode {e}, winner {game.winner}, loss {average_loss}, reward {game_reward}, agent1.epsilon {agent1.epsilon}")
@@ -65,15 +66,15 @@ def play_game(e):
         torch.save({
             'model_state_dict': agent1.model.state_dict(),
             'optimizer_state_dict': agent1.optimizer.state_dict(),
-        }, f'xxx-{e}.weights')
+        }, f'v2-{e}.weights')
 
 
 # Training loop
 EPISODES = 500000000
 BATCH_SIZE = 4096
 
-state_size = Connect4Game.BOARD_ROWS * Connect4Game.BOARD_COLUMNS  # Assuming your state is a 1D version of the board
-action_size = Connect4Game.BOARD_COLUMNS  # 7 possible actions, one for each column
+state_size = Connect4Board.BOARD_ROWS * Connect4Board.BOARD_COLUMNS  # Assuming your state is a 1D version of the board
+action_size = Connect4Board.BOARD_COLUMNS  # 7 possible actions, one for each column
 #agent2 = RandomAgent()
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
@@ -83,9 +84,9 @@ print(f"cuda available : {torch.cuda.is_available()} ")
 pretrained_agent_weights_path = "xxx-495000.weights"
 pretrained_agent_weights = torch.load(pretrained_agent_weights_path)
 agent1 = DQNAgent(state_size, action_size, device)
-agent1.model.load_state_dict(pretrained_agent_weights['model_state_dict'])
-agent1.optimizer.load_state_dict(pretrained_agent_weights['optimizer_state_dict'])
-print(f'loaded pre trained agent  {pretrained_agent_weights_path} checkpoint into agent1')
+#agent1.model.load_state_dict(pretrained_agent_weights['model_state_dict'])
+#agent1.optimizer.load_state_dict(pretrained_agent_weights['optimizer_state_dict'])
+#print(f'loaded pre trained agent  {pretrained_agent_weights_path} checkpoint into agent1')
 
 agent2 = DQNAgent(state_size, action_size, device)
 agent2.model.load_state_dict(pretrained_agent_weights['model_state_dict'])

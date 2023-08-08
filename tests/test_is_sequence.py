@@ -8,18 +8,18 @@ class TestConnect4(unittest.TestCase):
         self.game = Connect4Game()
 
     def test_check_sequence_vertical(self) -> None:
-        self.game.board = [
+        self.game.board.board = [
+            [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0, 0, 0],
         ]
-        self.assertTrue(self.game.has_sequence_of_length((4, 0), 1, 4))  # Vertical sequence for player 1
+        self.assertTrue(self.game.has_sequence_of_length((2, 0), 1, 4))  # Vertical sequence for player 1
 
     def test_check_sequence_horizontal(self) -> None:
-        self.game.board = [
+        self.game.board.board = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
@@ -30,7 +30,7 @@ class TestConnect4(unittest.TestCase):
         self.assertTrue(self.game.has_sequence_of_length((5, 6), 1, 4))  # Horizontal sequence for player 1
 
     def test_check_sequence_diagonal(self) -> None:
-        self.game.board = [
+        self.game.board.board = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
@@ -38,10 +38,10 @@ class TestConnect4(unittest.TestCase):
             [0, 0, 2, 1, 0, 0, 0],
             [2, 2, 1, 1, 0, 0, 0],
         ]
-        self.assertTrue(self.game.has_sequence_of_length((5, 0), 2, 3))  # Diagonal sequence for player 2
+        self.assertTrue(self.game.has_sequence_of_length((5, 1), 2, 3))  # Diagonal sequence for player 2
 
     def test_check_sequence_broken(self) -> None:
-        self.game.board = [
+        self.game.board.board = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
@@ -52,18 +52,29 @@ class TestConnect4(unittest.TestCase):
         self.assertFalse(self.game.has_sequence_of_length((5, 1), 1, 4))  # Broken sequence for player 1
 
     def test_check_sequence_at_edge(self) -> None:
-        self.game.board = [
+        self.game.board.board = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [1, 0, 0, 0, 0, 0, 0],
-            [1, 1, 1, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0],
         ]
         self.assertTrue(self.game.has_sequence_of_length((5, 0), 1, 4))  # Sequence at edge for player 1
 
+    def test_check_sequence_at_edge(self) -> None:
+        self.game.board.board = [
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0, 0, 0],
+            [1, 0, 0, 0, 0, 0, 0],
+            [1, 1, 1, 1, 0, 0, 0],
+        ]
+        self.assertTrue(self.game.has_sequence_of_length((5, 2), 1, 4))  # Sequence at edge for player 1
+
     def test_check_sequence_out_of_board(self) -> None:
-        self.game.board = [
+        self.game.board.board = [
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
             [0, 0, 0, 0, 0, 0, 0],
