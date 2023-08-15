@@ -1,77 +1,81 @@
+import numpy as np
+
 from Connect4Game import Connect4Game
+
 
 def test_vertical_win() -> None:
     game = Connect4Game()
-    game.board.set_board_state([
+
+    game.board.set_board_state(np.array([
+        [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0, 0],
-        [0, 0, 0, 0, 0, 0, 0],
-    ])
-    assert game.has_sequence_of_length((4, 0), 1, 4) == 4
+    ]))
+    assert game.has_sequence_of_length((2, 0), 1, 4) == True
 
 
 def test_horizontal_win() -> None:
     game = Connect4Game()
-    game.board.set_board_state([
+    game.board.set_board_state(np.array([
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [1, 1, 1, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
-    ])
-    assert game.has_sequence_of_length((3, 0), 1, 4) == 4
+    ]))
+    assert game.has_sequence_of_length((3, 0), 1, 4) == True
 
 def test_horizontal_fill_middle_win() -> None:
     game = Connect4Game()
-    game.board.set_board_state([
+    game.board.set_board_state(np.array([
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [1, 1, 1, 1, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
-    ])
-    assert game.has_sequence_of_length((3, 1), 1, 4) == 4
+    ]))
+    assert game.has_sequence_of_length((3, 1), 1, 4) == True
 
 
 def test_diagonal_win() -> None:
     game = Connect4Game()
-    game.board.set_board_state([
+    game.board.set_board_state(np.array([
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0, 0],
         [0, 0, 1, 0, 0, 0, 0],
         [0, 0, 0, 1, 0, 0, 0],
         [0, 0, 0, 0, 1, 0, 0],
-    ])
-    assert game.has_sequence_of_length((5, 4), 1, 4) == 4
+    ]))
+    assert game.has_sequence_of_length((5, 4), 1, 4) == True
 
 
 def test_diagonal_win_other_direction() -> None:
     game = Connect4Game()
-    game.board.set_board_state([
+    game.board.set_board_state(np.array([
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 1, 0, 0, 0],
         [0, 0, 1, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
-    ])
-    assert game.has_sequence_of_length((4, 0), 1, 4) == 4
+    ]))
+    assert game.has_sequence_of_length((4, 0), 1, 4) == True
 
 
 def test_seq_3_does_not_pass() -> None:
     game = Connect4Game()
-    game.board.set_board_state([
+    game.board.set_board_state(np.array([
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
         [0, 0, 1, 0, 0, 0, 0],
         [0, 1, 0, 0, 0, 0, 0],
         [1, 0, 0, 0, 0, 0, 0],
         [0, 0, 0, 0, 0, 0, 0],
-    ])
-    assert not game.has_sequence_of_length((4, 0), 1, 4) == 4
+    ]))
+    assert not game.has_sequence_of_length((4, 0), 1, 4) == True

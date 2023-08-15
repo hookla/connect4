@@ -20,6 +20,7 @@ wandb = "^0"
 torch = "^2.0"
 colorama = "^0"
 gym = "0.21"
+loguru = "^0.7"
 
 [tool.poetry.dev-dependencies]
 

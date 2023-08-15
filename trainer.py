@@ -1,7 +1,7 @@
 import torch
+import wandb
 from colorama import Fore, Style
 
-import wandb
 from Connect4Board import Connect4Board
 from Connect4Game import Connect4Game
 from DQNAgent import DQNAgent
@@ -71,7 +71,7 @@ def play_game(e):
 
 # Training loop
 EPISODES = 500000000
-BATCH_SIZE = 4096
+BATCH_SIZE = 32
 
 state_size = Connect4Board.BOARD_ROWS * Connect4Board.BOARD_COLUMNS  # Assuming your state is a 1D version of the board
 action_size = Connect4Board.BOARD_COLUMNS  # 7 possible actions, one for each column
@@ -81,7 +81,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"cuda available : {torch.cuda.is_available()} ")
 
 
-pretrained_agent_weights_path = "xxx-495000.weights"
+pretrained_agent_weights_path = "xxx-10000.weights"
 pretrained_agent_weights = torch.load(pretrained_agent_weights_path)
 agent1 = DQNAgent(state_size, action_size, device)
 #agent1.model.load_state_dict(pretrained_agent_weights['model_state_dict'])

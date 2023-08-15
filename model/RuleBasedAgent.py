@@ -2,43 +2,33 @@ import random
 
 import Connect4Game
 
-class OptimizedConnect4Agent:
+
+class RuleBasedAgent:
     def __init__(self, game: Connect4Game):
         self.game = game
 
+    def act(self, __, ___) -> int:
+        return self.choose_move()
+
     def choose_move(self) -> int:
+        # this time it will try every possible move and choose the one that gives the best reward and log the reward for each move
+        rewards = []
         valid_moves = self.game.board.get_valid_moves()
+        winning_moves_current_player = self.game.get_winning_moves_if_possible(self.game.current_player)
+        winning_moves_opponent = self.game.get_winning_moves_if_possible(self.game.other_player(), True)
 
-        # Check for a winning move for the agent
         for move in valid_moves:
-            if self.is_winning_move(move, self.game.current_player):
-                return move
+            self.game.board.make_move(move, self.game.current_player)
+            rewards.append(self.game.reward(move, move if move in winning_moves_current_player else -1,  move if move in winning_moves_opponent else -1))
+            self.game.board.undo_last_move()
+        # logger.info(f"rewards for each move: {rewards}")
 
-        # Check for a blocking move to prevent opponent's win
-        for move in valid_moves:
-            if self.is_winning_move(move, self.game.other_player()):
-                return move
+        # Find the maximum reward value
+        max_reward = max(rewards)
 
-        # Prefer the center column if available
-        if 3 in valid_moves:
-            return 3
+        # Create a list of all moves with that maximum reward value
+        best_moves = [move for move, reward in zip(valid_moves, rewards) if reward == max_reward]
 
-        # Otherwise, choose a random move
-        return random.choice(valid_moves)
-
-    def is_winning_move(self, column: int, player: int) -> bool:
-        row = self.game.board.first_empty_row_per_column[column]
-        if row == -1:  # Column is full
-            return False
-
-        # Temporarily set the position
-        self.game.board.set_position((row, column), player)
-
-        # Check if this move results in a win
-        win = self.game.has_sequence_of_length((row, column), player, Connect4Game.Connect4Game.SEQUENCE_LENGTH_TO_WIN )
-
-        # Undo the move
-        self.game.board.set_position((row, column), 0)
-
-        return win
+        # Return a random choice from the best moves
+        return random.choice(best_moves)
 
