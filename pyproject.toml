@@ -18,8 +18,8 @@ isort = "^5.0"
 setuptools = "^68.0"
 wandb = "^0"
 torch = "^2.0"
+torchvision = "^0.15"
 colorama = "^0"
-gym = "0.21"
 loguru = "^0.7"
 
 [tool.poetry.dev-dependencies]

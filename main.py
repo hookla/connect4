@@ -1,12 +1,12 @@
 import numpy as np
 import torch
 
-import Connect4Board
+from Connect4Board import Connect4Board
 from Connect4Game import Connect4Game
 from RuleBasedAgent import RuleBasedAgent
 
-state_size = Connect4Board.Connect4Board.BOARD_ROWS * Connect4Board.Connect4Board.BOARD_COLUMNS  # Assuming your state is a 1D version of the board
-action_size = Connect4Board.Connect4Board.BOARD_COLUMNS  # 7 possible actions, one for each column
+state_size = Connect4Board.BOARD_ROWS * Connect4Board.BOARD_COLUMNS  # Assuming your state is a 1D version of the board
+action_size = Connect4Board.BOARD_COLUMNS  # 7 possible actions, one for each column
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"cuda available : {torch.cuda.is_available()} ")
