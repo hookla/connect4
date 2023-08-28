@@ -1,7 +1,7 @@
 from enum import Enum
 from typing import Optional, Tuple, List
 
-from Connect4Board import Connect4Board
+from .Connect4Board import Connect4Board
 
 
 class Direction(Enum):

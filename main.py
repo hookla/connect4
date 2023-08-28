@@ -1,9 +1,9 @@
 import numpy as np
 import torch
 
-from Connect4Board import Connect4Board
-from Connect4Game import Connect4Game
-from RuleBasedAgent import RuleBasedAgent
+from model.Connect4Board import Connect4Board
+from model.Connect4Game import Connect4Game
+from model.RuleBasedAgent import RuleBasedAgent
 
 state_size = Connect4Board.BOARD_ROWS * Connect4Board.BOARD_COLUMNS  # Assuming your state is a 1D version of the board
 action_size = Connect4Board.BOARD_COLUMNS  # 7 possible actions, one for each column

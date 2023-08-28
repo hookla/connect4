@@ -1,6 +1,6 @@
 import random
 
-import Connect4Game
+from .Connect4Game import Connect4Game
 
 
 class RuleBasedAgent:
