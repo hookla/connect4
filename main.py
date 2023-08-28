@@ -11,6 +11,11 @@ action_size = Connect4Board.Connect4Board.BOARD_COLUMNS  # 7 possible actions, o
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 print(f"cuda available : {torch.cuda.is_available()} ")
 
+player1_win_count = 0
+player2_win_count = 0
+draw_count = 0
+
+
 def get_user_move():
     while True:
         user_input = input("Enter a column (1-7) or 'q' to quit: ").strip()
@@ -48,6 +53,8 @@ def jumbotron(message):
 
 
 def play_game() -> None:
+    global player1_win_count, player2_win_count, draw_count  # Specify that we're using the global variables
+
     jumbotron("NEW GAME")
 
     game = Connect4Game()
@@ -80,11 +87,19 @@ def play_game() -> None:
     if game.winner is not None:
         if game.winner == 1:
             jumbotron("Player 1 wins!")
+            player1_win_count += 1
         else:
             jumbotron("Player 2 wins!")
+            player2_win_count += 1
+
 
     else:
         print("The game is a draw.")
+        draw_count += 1
+
+    print(f"Win counts: Player 1: {player1_win_count}, Player 2: {player2_win_count}, Draws: {draw_count}")
+
+
 
 
 
